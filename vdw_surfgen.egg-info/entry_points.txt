@@ -1,0 +1,2 @@
+[console_scripts]
+vsg = vdw_surfgen.cli:cli_entry

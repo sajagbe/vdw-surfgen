@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+setup.py
+vdw_surfgen/__init__.py
+vdw_surfgen/cli.py
+vdw_surfgen.egg-info/PKG-INFO
+vdw_surfgen.egg-info/SOURCES.txt
+vdw_surfgen.egg-info/dependency_links.txt
+vdw_surfgen.egg-info/entry_points.txt
+vdw_surfgen.egg-info/requires.txt
+vdw_surfgen.egg-info/top_level.txt
