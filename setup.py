@@ -6,7 +6,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="vdw-surfgen",
-    version="0.2",
+    version="0.2", 
     packages=find_packages(),
     install_requires=["numpy", "matplotlib", "tqdm", "colorama"],
     entry_points={
@@ -15,8 +15,9 @@ setup(
         ]
     },
     author="Stephen O. Ajagbe",
-    description="Generate van der Waals surface points from XYZ molecules",
-    long_description=long_description,                 # <-- add this
-    long_description_content_type="text/markdown",    # <-- and this
+    description="Generate van der Waals surface points from XYZ files.",
+    long_description=long_description,
+    long_description_content_type="text/markdown", 
+    url="https://github.com/sajagbe/vdw-surfgen",
     python_requires=">=3.7",
 )
