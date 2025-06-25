@@ -4,18 +4,19 @@
 
 Surface points are generated at a scaled VDW radius and can be used for visualization, machine learning, or molecular modeling.
 
-It is built on logic by Robert T. McGibbon's [pyvdwsurface](https://github.com/rmcgibbo/pyvdwsurface).
+It is inspired by  Robert T. McGibbon's [pyvdwsurface](https://github.com/rmcgibbo/pyvdwsurface).
 
 ## 🔧 Features
 
-- Read atomic coordinates from `.xyz` files
-- Compute VDW surface points using Fibonacci sphere sampling
-- Set surface density (points per Å²)
-- Save results as:
-  - `.txt` coordinate file
-  - `.xyz` pseudo-atom file
-  - `.png` 3D scatter plot
-- Command-line interface (CLI) with full control
+- 🧬 Read atomic coordinates from `.xyz` files
+- ⚛️ Compute VDW surface points using Fibonacci sphere sampling
+- 🔬 Set surface density (points per Å²)
+- 💾 Save results as:
+  - `.xyz` pseudo-atom file (always saved)
+  - `.txt` coordinate file (optional)
+  - `.png` 3D scatter plot (optional)
+- 🎨 Beautiful colored terminal output with progress bars
+- ⚡ Command-line interface (CLI) with full control
 
 ## 🚀 Installation
 
@@ -28,9 +29,29 @@ pip install vdw-surfgen
 ## 🔨Usage
 
 ```bash
+# Basic usage (XYZ file always saved)
+vsg molecule.xyz
 
-vsg molecule.xyz --scale 1 --density 2.0 --save_txt --save_xyz --save_img
+# With additional formats and custom parameters
+vsg molecule.xyz --scale 1.2 --density 2.0 --txt --img
+```
 
+**Options:**
+- `--scale`: Scale factor for VDW radii (default: 1.0)
+- `--density`: Point density per Å² (default: 1.0)  
+- `--txt`: Save as TXT coordinate file
+- `--img`: Save 3D visualization as PNG
+
+**Note:** 
+- 🧬 `.xyz` files are always saved automatically
+- 🎨 Enjoy beautiful colored output with progress bars!
+
+## 🧪 Testing
+
+A sample test file `test.xyz` (FMN molecule with 50 atoms) is included. You can use it to test the functionality:
+
+```bash
+vsg test.xyz --txt --img
 ```
 
 [soajagbe](https://github.com/sajagbe).

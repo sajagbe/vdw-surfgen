@@ -8,7 +8,7 @@ setup(
     name="vdw-surfgen",
     version="0.2",
     packages=find_packages(),
-    install_requires=["numpy", "matplotlib"],
+    install_requires=["numpy", "matplotlib", "tqdm", "colorama"],
     entry_points={
         "console_scripts": [
             "vsg=vdw_surfgen.cli:cli_entry",
