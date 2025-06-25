@@ -6,7 +6,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="vdw-surfgen",
-    version="0.3", 
+    version="0.4.1", 
     license="MIT",
     include_package_data=False,
     packages=find_packages(),

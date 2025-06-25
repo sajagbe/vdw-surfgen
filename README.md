@@ -21,9 +21,7 @@ It is inspired by  Robert T. McGibbon's [pyvdwsurface](https://github.com/rmcgib
 ## 🚀 Installation
 
 ```bash
-
 pip install vdw-surfgen
-
 ```
 
 ## 🔨Usage
@@ -51,8 +49,17 @@ vsg molecule.xyz --scale 1.2 --density 2.0 --txt --img
 You can test the functionality with any `.xyz` file:
 
 ```bash
-vsg molecule.xyz --txt --img
+vsg your_molecule.xyz --txt --img
 ```
+
+[soajagbe](https://github.com/sajagbe).
+
+**Options:**
+- `--scale`: Scale factor for VDW radii (default: 1.0)
+- `--density`: Point density per Å² (default: 1.0)  
+- `--txt`: Save as TXT coordinate file
+- `--img`: Save 3D scatterplot as PNG
+
 
 [soajagbe](https://github.com/sajagbe).
 
