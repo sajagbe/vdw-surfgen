@@ -1,3 +1,25 @@
+Metadata-Version: 2.2
+Name: vdw-surfgen
+Version: 0.3
+Summary: Generate van der Waals surface points from XYZ files.
+Home-page: https://github.com/sajagbe/vdw-surfgen
+Author: Stephen O. Ajagbe
+License: MIT
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: numpy
+Requires-Dist: matplotlib
+Requires-Dist: tqdm
+Requires-Dist: colorama
+Dynamic: author
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
 # vdw-surfgen
 
 `vdw-surfgen` is a Python CLI tool to generate points on the van der Waals (VDW) surface of a molecule using its XYZ geometry file.

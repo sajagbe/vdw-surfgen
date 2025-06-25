@@ -6,7 +6,9 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="vdw-surfgen",
-    version="0.2", 
+    version="0.3", 
+    license="MIT",
+    include_package_data=False,
     packages=find_packages(),
     install_requires=["numpy", "matplotlib", "tqdm", "colorama"],
     entry_points={
@@ -19,5 +21,5 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown", 
     url="https://github.com/sajagbe/vdw-surfgen",
-    python_requires=">=3.7",
+    python_requires=">=3.7"
 )

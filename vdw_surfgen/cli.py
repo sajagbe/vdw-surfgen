@@ -111,7 +111,7 @@ def main():
   vsg molecule.xyz --txt              # Also save as TXT coordinates
   vsg molecule.xyz --img              # Also save 3D visualization
   vsg molecule.xyz --txt --img        # Save all formats
-  vsg test.xyz --scale 1.2 --density 2.0  # Custom parameters
+  vsg molecule.xyz --scale 1.2 --density 2.0  # Custom parameters
 
 {Fore.GREEN}✨ XYZ files are always saved automatically!{Style.RESET_ALL}
 """)
