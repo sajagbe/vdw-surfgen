@@ -1,24 +1,28 @@
 Metadata-Version: 2.4
 Name: vdw-surfgen
-Version: 0.5.0
+Version: 0.5.2
 Summary: Generate van der Waals surface points from XYZ files.
-Home-page: https://github.com/sajagbe/vdw-surfgen
-Author: Stephen O. Ajagbe
-License: MIT
+Author-email: "Stephen O. Ajagbe" <ajagbetobistephen@gmail.com>
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/sajagbe/vdw-surfgen
+Project-URL: Bug Reports, https://github.com/sajagbe/vdw-surfgen/issues
+Project-URL: Source, https://github.com/sajagbe/vdw-surfgen
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Scientific/Engineering :: Chemistry
 Requires-Python: >=3.7
 Description-Content-Type: text/markdown
 Requires-Dist: numpy
+Requires-Dist: scipy
 Requires-Dist: matplotlib
 Requires-Dist: tqdm
 Requires-Dist: colorama
-Dynamic: author
-Dynamic: description
-Dynamic: description-content-type
-Dynamic: home-page
-Dynamic: license
-Dynamic: requires-dist
-Dynamic: requires-python
-Dynamic: summary
 
 # vdw-surfgen
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vdw-surfgen"
-version = "0.2"
+version = "0.5.2"
 description = "Generate van der Waals surface points from XYZ files."
 readme = "README.md"
 license = "MIT"
@@ -25,6 +25,7 @@ classifiers = [
 requires-python = ">=3.7"
 dependencies = [
     "numpy",
+    "scipy",
     "matplotlib", 
     "tqdm",
     "colorama"
@@ -37,3 +38,6 @@ dependencies = [
 
 [project.scripts]
 vsg = "vdw_surfgen.cli:cli_entry"
+
+[tool.setuptools.packages.find]
+include = ["vdw_surfgen"]

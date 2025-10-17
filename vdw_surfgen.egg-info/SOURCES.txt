@@ -1,6 +1,5 @@
 README.md
 pyproject.toml
-setup.py
 vdw_surfgen/__init__.py
 vdw_surfgen/cli.py
 vdw_surfgen.egg-info/PKG-INFO

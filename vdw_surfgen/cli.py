@@ -5,6 +5,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from colorama import init, Fore, Style, Back
+from scipy.spatial import cKDTree
 import time
 
 # Initialize colorama for cross-platform colored terminal text
@@ -55,7 +56,7 @@ def generate_surface(coordinates, elements, scale_factor=1.0, density=1.0):
     for i, (pos, elem) in enumerate(tqdm(zip(coordinates, elements), desc="🌐 Building surface", unit="atoms", total=n_atoms)):
         r = vdw_radii[i]
         area = 4 * np.pi * r ** 2
-        n_points = max(10, int(area * density))
+        n_points = max(10, int(area * density*1000))
         directions = fibonacci_sphere(n_points)
         points = pos + directions * r
 
@@ -76,8 +77,86 @@ def generate_surface(coordinates, elements, scale_factor=1.0, density=1.0):
         result = np.concatenate(surface_points, axis=0)
     else:
         result = np.empty((0, 3))
+
+    # Optimize for uniform density
+    print(f"⚡ {Fore.YELLOW}Optimizing point distribution...{Style.RESET_ALL}")
+    result = optimize_surface_density(result, density)
+    
     print(f"✨ {Fore.GREEN}Generated {len(result)} surface points!{Style.RESET_ALL}")
     return result
+
+
+def calculate_molecular_surface_area(coordinates, elements, scale_factor=1.0):
+    """Calculate actual molecular VDW surface area analytically."""
+    from scipy.spatial import cKDTree
+    
+    coords_np = np.array(coordinates)
+    vdw_radii = np.array([VDW_RADII.get(e, 1.5) * scale_factor for e in elements])
+    tree = cKDTree(coords_np)
+    
+    total_area = 0.0
+    n_samples = 1000  # Sample points to estimate occlusion
+    
+    for i, r in enumerate(vdw_radii):
+        # Full sphere area
+        sphere_area = 4 * np.pi * r ** 2
+        
+        # Estimate exposed fraction via sampling
+        directions = fibonacci_sphere(n_samples)
+        test_points = coords_np[i] + directions * r
+        
+        # Check occlusion
+        exposed = 0
+        for pt in test_points:
+            occluded = False
+            for j in range(len(coordinates)):
+                if i == j:
+                    continue
+                dist = np.linalg.norm(pt - coords_np[j])
+                if dist < vdw_radii[j]:
+                    occluded = True
+                    break
+            if not occluded:
+                exposed += 1
+        
+        # Add exposed area
+        fraction_exposed = exposed / n_samples
+        total_area += sphere_area * fraction_exposed
+    
+    return total_area
+
+def optimize_surface_density(surface_points, density):
+    """Greedy sampling only - fast and preserves density."""
+
+    if len(surface_points) == 0:
+        return surface_points
+
+    spacing = 1.0 / np.sqrt(density)
+    tree = cKDTree(surface_points)
+    indices = np.random.permutation(len(surface_points))
+    kept = []
+    remaining = set(range(len(surface_points)))
+
+    current = indices[0]
+    with tqdm(total=len(surface_points), desc="🔄 Optimizing density", unit="pts", dynamic_ncols=True, leave=False) as pbar:
+        while remaining:
+            kept.append(current)
+            neighbors = tree.query_ball_point(surface_points[current], spacing)
+            remaining -= set(neighbors)
+            pbar.update(len(neighbors))
+            if not remaining:
+                break
+            candidates = list(remaining)
+            dists, _ = tree.query(surface_points[candidates], k=min(len(kept), 5))
+            if len(kept) == 1:
+                min_dists = dists
+            else:
+                min_dists = np.min(dists, axis=1) if dists.ndim > 1 else dists
+            current = candidates[np.argmax(min_dists)]
+
+    return surface_points[kept]
+
+
 
 
 def save_txt(filename, coords):
@@ -157,7 +236,19 @@ def main():
 
     name = Path(xyz_file).stem
     elements, coords = read_xyz_file(xyz_file)
+    
+    # Calculate TRUE surface area (independent of density)
+    print(f"📐 {Fore.YELLOW}Calculating molecular surface area...{Style.RESET_ALL}")
+    true_area = calculate_molecular_surface_area(coords, elements, scale_factor=args.scale)
+    print(f"📐 {Fore.CYAN}Molecular VDW surface area: {true_area:.2f} Ų{Style.RESET_ALL}")
+    
+
+
     surface = generate_surface(coords, elements, scale_factor=args.scale, density=args.density)
+    # surface = poisson_disk_sampling(surface, density=args.density)
+
+    actual_density = len(surface) / true_area
+    print(f"✓ {Fore.GREEN}Point density: {actual_density:.2f} points/Ų (target: {args.density}){Style.RESET_ALL}")
 
     print(f"\n💾 {Fore.BLUE}Saving output files...{Style.RESET_ALL}")
     
