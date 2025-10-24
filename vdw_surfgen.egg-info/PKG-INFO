@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: vdw-surfgen
-Version: 0.5.4
+Version: 0.5.6
 Summary: Generate van der Waals surface points from XYZ files.
 Author-email: "Stephen O. Ajagbe" <ajagbetobistephen@gmail.com>
 License-Expression: MIT
@@ -23,7 +23,6 @@ Requires-Dist: scipy
 Requires-Dist: matplotlib
 Requires-Dist: tqdm
 Requires-Dist: colorama
-Requires-Dist: freesasa
 
 # vdw-surfgen
 

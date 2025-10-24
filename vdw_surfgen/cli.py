@@ -85,59 +85,53 @@ def generate_surface(coordinates, elements, scale_factor=1.0, density=1.0):
     print(f"✨ {Fore.GREEN}Generated {len(result)} surface points!{Style.RESET_ALL}")
     return result
 
-def calculate_molecular_surface_area(coordinates, elements, scale_factor=1.0):
+def calculate_molecular_surface_area(coordinates, elements, scale_factor=1.0, n_points=1000):
     """
-    Calculate molecular VDW surface area using FreeSASA library with Lee-Richards algorithm.
+    Calculate molecular VDW surface area using numpy-based spherical integration.
+    Based on: https://gist.github.com/ljmartin/2daa60f58abccaf4696a2fdda1ef6737
 
     Args:
-        coordinates: Atomic coordinates
+        coordinates: Atomic coordinates (N x 3 array)
         elements: Element symbols
         scale_factor: Scaling factor for VDW radii
+        n_points: Number of points per atom sphere for integration
 
     Returns:
         Total surface area in Å²
-
-    Raises:
-        ImportError: If FreeSASA is not installed
     """
-    try:
-        import freesasa
-    except ImportError:
-        raise ImportError(
-            "FreeSASA library not found. Install it with:\n"
-            "  pip install freesasa\n"
-        )
-
-    freesasa.setVerbosity(freesasa.silent)
-
-    # Build PDB-like string for FreeSASA
-    pdb_lines = []
-    for i, (coord, elem) in enumerate(zip(coordinates, elements)):
-        radius = VDW_RADII.get(elem, 1.5) * scale_factor
-        # PDB ATOM format with radius in the B-factor column
-        line = f"ATOM  {i+1:5d}  {elem:<2s}  MOL A   1    {coord[0]:8.3f}{coord[1]:8.3f}{coord[2]:8.3f}  1.00{radius:6.2f}           {elem:>2s}"
-        pdb_lines.append(line)
-
-    pdb_string = "\n".join(pdb_lines) + "\nEND\n"
-
-    # Write to temporary PDB file
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False) as tmp:
-        tmp.write(pdb_string)
-        tmp_path = tmp.name
-
-    try:
-        structure = freesasa.Structure(tmp_path)
-
-        # Calculate surface area using Lee-Richards algorithm with 1000 slices
-        # Use probe_radius=0 to get VDW surface (not solvent accessible surface)
-        result = freesasa.calc(structure,
-                              freesasa.Parameters({'algorithm': freesasa.LeeRichards,
-                                                  'n-slices': 1000,
-                                                  'probe-radius': 0.0}))
-
-        return result.totalArea()
-    finally:
-        os.unlink(tmp_path)
+    coords_np = np.array(coordinates)
+    vdw_radii = np.array([VDW_RADII.get(e, 1.5) * scale_factor for e in elements])
+    n_atoms = len(elements)
+    
+    # Generate fibonacci sphere points for integration
+    sphere_points = fibonacci_sphere(n_points)
+    
+    total_area = 0.0
+    
+    print(f"📐 {Fore.YELLOW}Calculating surface area with {n_points} points per atom...{Style.RESET_ALL}")
+    
+    for i in tqdm(range(n_atoms), desc="🔬 Integrating", unit="atoms"):
+        r_i = vdw_radii[i]
+        pos_i = coords_np[i]
+        
+        test_points = pos_i + sphere_points * r_i        
+        accessible = np.ones(n_points, dtype=bool)
+        
+        for j in range(n_atoms):
+            if i == j:
+                continue
+            
+            r_j = vdw_radii[j]
+            pos_j = coords_np[j]
+            dists = np.linalg.norm(test_points - pos_j, axis=1)            
+            accessible &= (dists > r_j)
+        
+        # Calculate exposed surface area for this atom
+        # Area = (4πr²) × (fraction of accessible points)
+        atom_area = 4 * np.pi * r_i**2 * np.sum(accessible) / n_points
+        total_area += atom_area
+    
+    return total_area
 
 
 def optimize_surface_density(surface_points, density):
@@ -260,7 +254,6 @@ def main():
     true_area = calculate_molecular_surface_area(coords, elements, scale_factor=args.scale)
     print(f"📐 {Fore.CYAN}Molecular VDW surface area: {true_area:.2f} Å²{Style.RESET_ALL}")
     
-
 
     surface = generate_surface(coords, elements, scale_factor=args.scale, density=args.density)
     # surface = poisson_disk_sampling(surface, density=args.density)
