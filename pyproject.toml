@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vdw-surfgen"
-version = "0.5.2"
+version = "0.5.3"
 description = "Generate van der Waals surface points from XYZ files."
 readme = "README.md"
 license = "MIT"

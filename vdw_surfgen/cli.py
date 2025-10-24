@@ -125,6 +125,7 @@ def calculate_molecular_surface_area(coordinates, elements, scale_factor=1.0):
     
     return total_area
 
+
 def optimize_surface_density(surface_points, density):
     """Greedy sampling only - fast and preserves density."""
 
@@ -155,7 +156,6 @@ def optimize_surface_density(surface_points, density):
             current = candidates[np.argmax(min_dists)]
 
     return surface_points[kept]
-
 
 
 
@@ -204,22 +204,26 @@ def main():
         epilog=f"""
 {Fore.YELLOW}Examples:{Style.RESET_ALL}
   vsg molecule.xyz                    # Generate XYZ surface file only
-  vsg molecule.xyz --txt              # Also save as TXT coordinates
-  vsg molecule.xyz --img              # Also save 3D visualization
-  vsg molecule.xyz --txt --img        # Save all formats
-  vsg molecule.xyz --scale 1.2 --density 2.0  # Custom parameters
+  vsg molecule.xyz -t                 # Also save as TXT coordinates (short form)
+  vsg molecule.xyz --txt              # Also save as TXT coordinates (long form)
+  vsg molecule.xyz -i                 # Also save 3D visualization (short form)
+  vsg molecule.xyz --img              # Also save 3D visualization (long form)
+  vsg molecule.xyz -t -i              # Save all formats (short form)
+  vsg molecule.xyz --txt --img        # Save all formats (long form)
+  vsg molecule.xyz -s 1.2 -d 2.0      # Custom parameters (short form)
+  vsg molecule.xyz --scale 1.2 --density 2.0  # Custom parameters (long form)
 
 {Fore.GREEN}✨ XYZ files are always saved automatically!{Style.RESET_ALL}
 """)
     
     parser.add_argument("xyz_file", help="📁 Path to input XYZ file")
-    parser.add_argument("--scale", type=float, default=1.0, 
+    parser.add_argument("-s", "--scale", type=float, default=1.0, 
                        help="⚖️  Scale factor for VDW radii (default: 1.0)")
-    parser.add_argument("--density", type=float, default=1.0, 
+    parser.add_argument("-d", "--density", type=float, default=1.0, 
                        help="🔬 Point density per Å² (default: 1.0)")
-    parser.add_argument("--txt", action="store_true", 
+    parser.add_argument("-t", "--txt", action="store_true", 
                        help="💾 Save surface points as TXT file")
-    parser.add_argument("--img", action="store_true", 
+    parser.add_argument("-i", "--img", action="store_true", 
                        help="🖼️  Save 3D surface plot image")
 
     args = parser.parse_args()
@@ -240,7 +244,7 @@ def main():
     # Calculate TRUE surface area (independent of density)
     print(f"📐 {Fore.YELLOW}Calculating molecular surface area...{Style.RESET_ALL}")
     true_area = calculate_molecular_surface_area(coords, elements, scale_factor=args.scale)
-    print(f"📐 {Fore.CYAN}Molecular VDW surface area: {true_area:.2f} Ų{Style.RESET_ALL}")
+    print(f"📐 {Fore.CYAN}Molecular VDW surface area: {true_area:.2f} Å²{Style.RESET_ALL}")
     
 
 
@@ -248,7 +252,7 @@ def main():
     # surface = poisson_disk_sampling(surface, density=args.density)
 
     actual_density = len(surface) / true_area
-    print(f"✓ {Fore.GREEN}Point density: {actual_density:.2f} points/Ų (target: {args.density}){Style.RESET_ALL}")
+    print(f"✓ {Fore.GREEN}Point density: {actual_density:.2f} points/Å² (target: {args.density}){Style.RESET_ALL}")
 
     print(f"\n💾 {Fore.BLUE}Saving output files...{Style.RESET_ALL}")
     
