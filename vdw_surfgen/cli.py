@@ -1,6 +1,6 @@
 import argparse
 import numpy as np
-import os
+import os,tempfile
 from pathlib import Path
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -85,45 +85,59 @@ def generate_surface(coordinates, elements, scale_factor=1.0, density=1.0):
     print(f"✨ {Fore.GREEN}Generated {len(result)} surface points!{Style.RESET_ALL}")
     return result
 
-
 def calculate_molecular_surface_area(coordinates, elements, scale_factor=1.0):
-    """Calculate actual molecular VDW surface area analytically."""
-    from scipy.spatial import cKDTree
-    
-    coords_np = np.array(coordinates)
-    vdw_radii = np.array([VDW_RADII.get(e, 1.5) * scale_factor for e in elements])
-    tree = cKDTree(coords_np)
-    
-    total_area = 0.0
-    n_samples = 1000  # Sample points to estimate occlusion
-    
-    for i, r in enumerate(vdw_radii):
-        # Full sphere area
-        sphere_area = 4 * np.pi * r ** 2
-        
-        # Estimate exposed fraction via sampling
-        directions = fibonacci_sphere(n_samples)
-        test_points = coords_np[i] + directions * r
-        
-        # Check occlusion
-        exposed = 0
-        for pt in test_points:
-            occluded = False
-            for j in range(len(coordinates)):
-                if i == j:
-                    continue
-                dist = np.linalg.norm(pt - coords_np[j])
-                if dist < vdw_radii[j]:
-                    occluded = True
-                    break
-            if not occluded:
-                exposed += 1
-        
-        # Add exposed area
-        fraction_exposed = exposed / n_samples
-        total_area += sphere_area * fraction_exposed
-    
-    return total_area
+    """
+    Calculate molecular VDW surface area using FreeSASA library with Lee-Richards algorithm.
+
+    Args:
+        coordinates: Atomic coordinates
+        elements: Element symbols
+        scale_factor: Scaling factor for VDW radii
+
+    Returns:
+        Total surface area in Å²
+
+    Raises:
+        ImportError: If FreeSASA is not installed
+    """
+    try:
+        import freesasa
+    except ImportError:
+        raise ImportError(
+            "FreeSASA library not found. Install it with:\n"
+            "  pip install freesasa\n"
+        )
+
+    freesasa.setVerbosity(freesasa.silent)
+
+    # Build PDB-like string for FreeSASA
+    pdb_lines = []
+    for i, (coord, elem) in enumerate(zip(coordinates, elements)):
+        radius = VDW_RADII.get(elem, 1.5) * scale_factor
+        # PDB ATOM format with radius in the B-factor column
+        line = f"ATOM  {i+1:5d}  {elem:<2s}  MOL A   1    {coord[0]:8.3f}{coord[1]:8.3f}{coord[2]:8.3f}  1.00{radius:6.2f}           {elem:>2s}"
+        pdb_lines.append(line)
+
+    pdb_string = "\n".join(pdb_lines) + "\nEND\n"
+
+    # Write to temporary PDB file
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.pdb', delete=False) as tmp:
+        tmp.write(pdb_string)
+        tmp_path = tmp.name
+
+    try:
+        structure = freesasa.Structure(tmp_path)
+
+        # Calculate surface area using Lee-Richards algorithm with 1000 slices
+        # Use probe_radius=0 to get VDW surface (not solvent accessible surface)
+        result = freesasa.calc(structure,
+                              freesasa.Parameters({'algorithm': freesasa.LeeRichards,
+                                                  'n-slices': 1000,
+                                                  'probe-radius': 0.0}))
+
+        return result.totalArea()
+    finally:
+        os.unlink(tmp_path)
 
 
 def optimize_surface_density(surface_points, density):
