@@ -11,13 +11,45 @@ import time
 # Initialize colorama for cross-platform colored terminal text
 init(autoreset=True)
 
-VDW_RADII = {  # shortened for brevity
-    'H': 1.20, 'C': 1.70, 'N': 1.55, 'O': 1.52, 'F': 1.47, 'P': 1.80, 'S': 1.80, 'Cl': 1.75,
-    'Br': 1.85, 'I': 1.98, 'He': 1.40, 'Ne': 1.54, 'Ar': 1.88, 'Kr': 2.02, 'Xe': 2.16,
-    'Li': 1.82, 'Na': 2.27, 'K': 2.75, 'Rb': 3.03, 'Cs': 3.43, 'Fr': 3.48, 'Be': 2.00,
-    'Mg': 1.73, 'Ca': 2.31, 'Sr': 2.49, 'Ba': 2.68, 'Ra': 2.83, 'B': 1.92, 'Al': 1.84,
-    'Si': 2.10, 'Ti': 2.15, 'Fe': 2.00, 'Zn': 2.10, 'Cu': 1.95, 'Mn': 2.05, 'Hg': 2.05,
-    'Pb': 2.02, 'U': 1.86
+# Van der Waals radii (in Å) for elements Z = 1–103 (H through Lr).
+#
+# Primary Compilation Citation:
+#   Mantina, M.; Valero, R.; Cramer, C. J.; Truhlar, D. G. "Atomic Radii of the
+#   Elements." In CRC Handbook of Chemistry and Physics, 95th ed.; Haynes, W. M.,
+#   Ed.; CRC Press: Boca Raton, FL, 2014; Section 9, pp 9-49–9-50.
+#   ISBN: 978-1-4822-0867-2.
+#
+# Organization & Constituent Sources:
+#   1. 28 Main-Group & Noble Gas Elements:
+#      - Bondi, A. "van der Waals Volumes and Radii." J. Phys. Chem. 1964, 68 (3),
+#        441–451 (DOI: 10.1021/j100785a001).
+#      - Rowland, R. S.; Taylor, R. "Intermolecular Nonbonded Contact Distances in
+#        Organic Crystal Structures: Comparison with Distances Expected from van der
+#        Waals Radii." J. Phys. Chem. 1996, 100 (18), 7384–7391
+#        (DOI: 10.1021/jp953141+) [refines H = 1.10 Å].
+#   2. 16 Remaining Main-Group Elements (Be, B, Al, Ca, Ge, Rb, Sr, Sb, Cs, Ba,
+#      Bi, Po, At, Rn, Fr, Ra):
+#      - Mantina, M.; Chamberlin, A. C.; Valero, R.; Cramer, C. J.; Truhlar, D. G.
+#        "Consistent van der Waals Radii for the Whole Main Group." J. Phys. Chem. A
+#        2009, 113 (19), 5806–5812 (DOI: 10.1021/jp8111556).
+#   3. 59 Transition Metals, Lanthanides, and Actinides (Sc–Zn, Y–Cd, La–Hg, Ac–Lr):
+#      - Batsanov, S. S. "Van der Waals Radii of Elements." Inorg. Mater. 2001,
+#        37 (9), 871–885 (DOI: 10.1023/A:1011625728803), harmonized onto the
+#        Bondi scale in the CRC Handbook compilation.
+VDW_RADII = {
+    'H': 1.10, 'He': 1.40, 'Li': 1.82, 'Be': 1.53, 'B': 1.92, 'C': 1.70, 'N': 1.55, 'O': 1.52,
+    'F': 1.47, 'Ne': 1.54, 'Na': 2.27, 'Mg': 1.73, 'Al': 1.84, 'Si': 2.10, 'P': 1.80, 'S': 1.80,
+    'Cl': 1.75, 'Ar': 1.88, 'K': 2.75, 'Ca': 2.31, 'Sc': 2.15, 'Ti': 2.11, 'V': 2.07, 'Cr': 2.06,
+    'Mn': 2.05, 'Fe': 2.04, 'Co': 2.00, 'Ni': 1.97, 'Cu': 1.96, 'Zn': 2.01, 'Ga': 1.87, 'Ge': 2.11,
+    'As': 1.85, 'Se': 1.90, 'Br': 1.85, 'Kr': 2.02, 'Rb': 3.03, 'Sr': 2.49, 'Y': 2.32, 'Zr': 2.23,
+    'Nb': 2.18, 'Mo': 2.17, 'Tc': 2.16, 'Ru': 2.13, 'Rh': 2.10, 'Pd': 2.10, 'Ag': 2.11, 'Cd': 2.18,
+    'In': 1.93, 'Sn': 2.17, 'Sb': 2.06, 'Te': 2.06, 'I': 1.98, 'Xe': 2.16, 'Cs': 3.43, 'Ba': 2.68,
+    'La': 2.43, 'Ce': 2.42, 'Pr': 2.40, 'Nd': 2.39, 'Pm': 2.38, 'Sm': 2.36, 'Eu': 2.35, 'Gd': 2.34,
+    'Tb': 2.33, 'Dy': 2.31, 'Ho': 2.30, 'Er': 2.29, 'Tm': 2.27, 'Yb': 2.26, 'Lu': 2.24, 'Hf': 2.23,
+    'Ta': 2.22, 'W': 2.18, 'Re': 2.16, 'Os': 2.16, 'Ir': 2.13, 'Pt': 2.13, 'Au': 2.14, 'Hg': 2.23,
+    'Tl': 1.96, 'Pb': 2.02, 'Bi': 2.07, 'Po': 1.97, 'At': 2.02, 'Rn': 2.20, 'Fr': 3.48, 'Ra': 2.83,
+    'Ac': 2.47, 'Th': 2.45, 'Pa': 2.43, 'U': 2.41, 'Np': 2.39, 'Pu': 2.43, 'Am': 2.44, 'Cm': 2.45,
+    'Bk': 2.44, 'Cf': 2.45, 'Es': 2.45, 'Fm': 2.45, 'Md': 2.46, 'No': 2.46, 'Lr': 2.46,
 }
 
 def read_xyz_file(filepath):
